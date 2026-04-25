@@ -16,11 +16,15 @@ download/
 output/
 temp/
 split/
+output/
+FONTS/
 
 # 日志
 *.log
 logs/
 TODO.md
+田英章硬笔楷书简体.ttf
+
 
 # 数据库
 *.db
