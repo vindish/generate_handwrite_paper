@@ -77,7 +77,7 @@ def draw_page(c, chars):
                 bottom_padding = GRID_SIZE * 0.05 + TEXT_OFFSET
 
                 text_y = y_bottom + bottom_padding + descent -0.6 * mm
-
+                # 0.6 * mm 自动转mm单位
                 c.drawCentredString(
                     x + GRID_SIZE / 2 + 0.2 * mm,
                     text_y,
