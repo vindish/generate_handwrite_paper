@@ -5,7 +5,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 # ===== 字体 =====
-FONT_PATH = "FONTS\田英章硬笔楷书简体.ttf"
+FONT_PATH = "FONTS\霞鹜文楷 Regular.TTF"
 FONT_NAME = "CustomFont"
 pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_PATH))
 
@@ -71,13 +71,13 @@ def draw_page(c, chars):
             c.setStrokeAlpha(1)
 
             # ===== 示例字 =====
-            if demo_char and (col == 0 or col == mid_col):
+            if demo_char and (col == 0 or col == mid_col+1):
                 c.setFont(FONT_NAME, FONT_SIZE)
 
                 bottom_padding = GRID_SIZE * 0.05 + TEXT_OFFSET
 
                 text_y = y_bottom + bottom_padding + descent -0.6 * mm
-                # 0.6 * mm 自动转mm单位
+                # 0.6 * mm 自动转mm单位ttttrr
                 c.drawCentredString(
                     x + GRID_SIZE / 2 + 0.2 * mm,
                     text_y,
@@ -102,6 +102,6 @@ def create_copybook(output, text):
 if __name__ == "__main__":
     practice_text = list("一二三十人入八大小口日月田山石土日木水火人大")
 
-    create_copybook("output\copybook2.pdf", practice_text)
+    create_copybook("output\copybook2xw.pdf", practice_text)
 
     print("生成完成")
