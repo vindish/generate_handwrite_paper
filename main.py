@@ -5,7 +5,7 @@ from reportlab.pdfbase import pdfmetrics
 from reportlab.pdfbase.ttfonts import TTFont
 
 # ===== 字体 =====
-FONT_PATH = "FONTS\霞鹜文楷 Regular.TTF"
+FONT_PATH = "FONTS\田英章硬笔楷书简体.ttf"
 FONT_NAME = "CustomFont"
 pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_PATH))
 
@@ -55,17 +55,17 @@ def draw_page(c, chars):
             c.setStrokeAlpha(1)
             c.rect(x, y_bottom, GRID_SIZE, GRID_SIZE)
 
-            # ===== 虚线米字格（40%透明）=====
-            c.setStrokeAlpha(0.4)
+            # ===== 虚线米字格（20%透明）=====
+            c.setStrokeAlpha(0.2)
             c.setDash(1, 2)
 
-            # 横线
-            c.line(x, y_bottom + GRID_SIZE / 2, x + GRID_SIZE, y_bottom + GRID_SIZE / 2)
-            # 竖线
-            c.line(x + GRID_SIZE / 2, y_bottom, x + GRID_SIZE / 2, y_top)
-            # 对角线
-            c.line(x, y_bottom, x + GRID_SIZE, y_top)
-            c.line(x, y_top, x + GRID_SIZE, y_bottom)
+            # # 横线
+            # c.line(x, y_bottom + GRID_SIZE / 2, x + GRID_SIZE, y_bottom + GRID_SIZE / 2)
+            # # 竖线
+            # c.line(x + GRID_SIZE / 2, y_bottom, x + GRID_SIZE / 2, y_top)
+            # # 对角线
+            # c.line(x, y_bottom, x + GRID_SIZE, y_top)
+            # c.line(x, y_top, x + GRID_SIZE, y_bottom)
 
             c.setDash()
             c.setStrokeAlpha(1)
@@ -100,8 +100,8 @@ def create_copybook(output, text):
 
 
 if __name__ == "__main__":
-    practice_text = list("一二三十人入八大小口日月田山石土日木水火人大")
+    practice_text = list("一二三十人入八大小口日月田山石土上下中手心力刀水火木左右正不之又也已己")
 
-    create_copybook("output\copybook2xw.pdf", practice_text)
+    create_copybook("output\copybook3.pdf", practice_text)
 
     print("生成完成")
