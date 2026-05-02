@@ -13,7 +13,7 @@ pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_PATH))
 PAGE_WIDTH, PAGE_HEIGHT = A4
 
 MARGIN = 15 * mm
-GRID_SIZE = 12 * mm
+GRID_SIZE = 11 * mm
 
 ROWS = int((PAGE_HEIGHT - 2 * MARGIN) // GRID_SIZE)
 COLS = int((PAGE_WIDTH - 2 * MARGIN) // GRID_SIZE)
@@ -71,7 +71,7 @@ def draw_page(c, chars):
             c.setStrokeAlpha(1)
 
             # ===== 示例字 =====
-            if demo_char and (col == 0 or col == mid_col+1):
+            if demo_char and (col == 0 or col == mid_col):
                 c.setFont(FONT_NAME, FONT_SIZE)
 
                 bottom_padding = GRID_SIZE * 0.05 + TEXT_OFFSET
@@ -94,14 +94,27 @@ def create_copybook(output, text):
         page_chars = text[i:i + page_capacity]
 
         draw_page(c, page_chars)
+        # ===== 页脚 =====
+        draw_footer(c)
         c.showPage()
 
     c.save()
+
+def draw_footer(c):
+    footer_text = "姓名：          日期：          复核："
+
+    c.setFont(FONT_NAME, 15)
+
+    # 页脚位置（可微调）
+    footer_y = 10 * mm
+    footer_x = PAGE_WIDTH / 2  +  50 * mm
+
+    c.drawCentredString(footer_x, footer_y, footer_text)
 
 
 if __name__ == "__main__":
     practice_text = list("一二三十人入八大小口日月田山石土上下中手心力刀水火木左右正不之又也已己")
 
-    create_copybook("output\copybook3.pdf", practice_text)
+    create_copybook("output\copybook7.pdf", practice_text)
 
     print("生成完成")
