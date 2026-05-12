@@ -1,120 +1,111 @@
+import reportlab.rl_config as rl_config
+
+# =========================================================
+# 修复 reportlab 字体兼容问题
+# =========================================================
+if not hasattr(
+    rl_config,
+    "autoGenerateTTFMissingTTFName"
+):
+
+    rl_config.autoGenerateTTFMissingTTFName = 1
+
+import math
+from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.pdfgen import canvas
 from reportlab.lib.pagesizes import A4
-from reportlab.lib.units import mm
+
+from config import *
+from font_manager import *
+from draw_core import *
+
 from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 
-# ===== 字体 =====
-FONT_PATH = "FONTS\田英章硬笔楷书简体.ttf"
-FONT_NAME = "CustomFont"
-pdfmetrics.registerFont(TTFont(FONT_NAME, FONT_PATH))
+# =========================================================
+# 注册 UI 字体
+# =========================================================
+pdfmetrics.registerFont(
+    TTFont("UI_FONT", UI_FONT_PATH)
+)
 
-# ===== 页面参数 =====
-PAGE_WIDTH, PAGE_HEIGHT = A4
+# =========================================================
+# 创建字帖
+# =========================================================
+def create_copybook(output_pdf, chars):
 
-MARGIN = 15 * mm
-GRID_SIZE = 11 * mm
+    OUTPUT_DIR.mkdir(exist_ok=True)
 
-ROWS = int((PAGE_HEIGHT - 2 * MARGIN) // GRID_SIZE)
-COLS = int((PAGE_WIDTH - 2 * MARGIN) // GRID_SIZE)
+    fonts = load_fonts(chars[0])
 
-FONT_SIZE = GRID_SIZE * 0.90
+    if not fonts:
 
-# ===== 微调参数 =====
-OFFSET_X = 0
-OFFSET_Y = 0
-TEXT_OFFSET = 0
+        raise Exception("没有可用字体")
 
+    c = canvas.Canvas(
+        str(output_pdf),
+        pagesize=A4
+    )
 
-def draw_page(c, chars):
-    x_start = MARGIN + OFFSET_X
-    y_start = PAGE_HEIGHT - MARGIN + OFFSET_Y
+    for char in chars:
 
-    char_index = 0
+        valid_fonts = []
 
-    face = pdfmetrics.getFont(FONT_NAME).face
-    descent = abs(face.descent / 1000 * FONT_SIZE)
+        for f in fonts:
 
-    mid_col = COLS // 2
+            if font_supports_char(
+                f["path"],
+                char
+            ):
+                valid_fonts.append(f)
 
-    for row in range(ROWS):
-        y_top = y_start - row * GRID_SIZE
-        y_bottom = y_top - GRID_SIZE
+        if not valid_fonts:
 
-        # 每行一个字
-        if char_index < len(chars):
-            demo_char = chars[char_index]
-            char_index += 1
-        else:
-            demo_char = ""
+            print(f"⚠️ 没有字体支持字符: {char}")
 
-        for col in range(COLS):
-            x = x_start + col * GRID_SIZE
+            continue
 
-            # ===== 外框 =====
-            c.setStrokeAlpha(1)
-            c.rect(x, y_bottom, GRID_SIZE, GRID_SIZE)
+        total_pages = math.ceil(
+            len(valid_fonts)
+            / MAX_ROWS_PER_PAGE
+        )
 
-            # ===== 虚线米字格（20%透明）=====
-            c.setStrokeAlpha(0.2)
-            c.setDash(1, 2)
+        for page_index in range(total_pages):
 
-            # # 横线
-            # c.line(x, y_bottom + GRID_SIZE / 2, x + GRID_SIZE, y_bottom + GRID_SIZE / 2)
-            # # 竖线
-            # c.line(x + GRID_SIZE / 2, y_bottom, x + GRID_SIZE / 2, y_top)
-            # # 对角线
-            # c.line(x, y_bottom, x + GRID_SIZE, y_top)
-            # c.line(x, y_top, x + GRID_SIZE, y_bottom)
+            start = (
+                page_index
+                * MAX_ROWS_PER_PAGE
+            )
 
-            c.setDash()
-            c.setStrokeAlpha(1)
+            end = (
+                start
+                + MAX_ROWS_PER_PAGE
+            )
 
-            # ===== 示例字 =====
-            if demo_char and (col == 0 or col == mid_col):
-                c.setFont(FONT_NAME, FONT_SIZE)
+            page_fonts = valid_fonts[start:end]
 
-                bottom_padding = GRID_SIZE * 0.05 + TEXT_OFFSET
+            draw_page(
+                c,
+                char,
+                page_fonts
+            )
 
-                text_y = y_bottom + bottom_padding + descent -0.6 * mm
-                # 0.6 * mm 自动转mm单位ttttrr
-                c.drawCentredString(
-                    x + GRID_SIZE / 2 + 0.2 * mm,
-                    text_y,
-                    demo_char
-                )
+            draw_header(c)
 
-
-def create_copybook(output, text):
-    c = canvas.Canvas(output, pagesize=A4)
-
-    page_capacity = ROWS
-
-    for i in range(0, len(text), page_capacity):
-        page_chars = text[i:i + page_capacity]
-
-        draw_page(c, page_chars)
-        # ===== 页脚 =====
-        draw_footer(c)
-        c.showPage()
+            c.showPage()
 
     c.save()
 
-def draw_footer(c):
-    footer_text = "姓名：          日期：          复核："
-
-    c.setFont(FONT_NAME, 15)
-
-    # 页脚位置（可微调）
-    footer_y = 10 * mm
-    footer_x = PAGE_WIDTH / 2  +  50 * mm
-
-    c.drawCentredString(footer_x, footer_y, footer_text)
+    print(f"\n✅ PDF 生成完成: {output_pdf}")
 
 
+# =========================================================
+# 启动
+# =========================================================
 if __name__ == "__main__":
-    practice_text = list("一二三十人入八大小口日月田山石土上下中手心力刀水火木左右正不之又也已己")
-
-    create_copybook("output\copybook7.pdf", practice_text)
-
-    print("生成完成")
+    hanzi = "豆"
+    practice_text = list(hanzi)
+    filename = (f"多页字体字帖_37_{hanzi}_.pdf")
+    create_copybook(
+        OUTPUT_DIR / filename,
+        practice_text
+    )

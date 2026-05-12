@@ -18,6 +18,9 @@ temp/
 split/
 output/
 FONTS/
+md/
+export_fonts/
+utils/
 
 # 日志
 *.log
